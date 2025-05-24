@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "196899589786",
+    "project_id": "dellp-e9fd4",
+    "storage_bucket": "dellp-e9fd4.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:196899589786:android:c4bf9e01a35e7e1bc51923",
+        "android_client_info": {
+          "package_name": "dell.app.com"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDIUPkNKXX7HK3XTD0ilq30BKA4T_sjHqs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,5 @@
+dependencies:
+  shelf: ^1.4.0
+  shelf_router: ^1.0.0
+  shelf_cors_headers: ^0.2.0   # to handle CORS easily
+
