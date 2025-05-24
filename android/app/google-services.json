@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "842261795036",
+    "project_id": "aplikasi-pakan-ikan",
+    "storage_bucket": "aplikasi-pakan-ikan.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:842261795036:android:0c4edbce976e1e8281a419",
+        "android_client_info": {
+          "package_name": "com.example.aplikasiku"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmqCBYyEkqZuXXSYngX24UX8swQBj_G4U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
