@@ -85,4 +85,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'aplikasi-pakan-ikan.firebasestorage.app',
     measurementId: 'G-CTDGHF3LB8',
   );
+
 }

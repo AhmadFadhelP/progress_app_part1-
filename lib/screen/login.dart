@@ -1,33 +1,71 @@
-import 'package:aplikasiku/screen/signup.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:aplikasiku/screen/signup.dart';
 import 'dashboard.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Login Figma',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData.light().copyWith(
-        scaffoldBackgroundColor: const Color(0xFFEEEEEE),
-      ),
-      home: const LoginScreen(),
-    );
-  }
-}
-
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<LoginScreen> createState() => _LoginScreenState();
+}
 
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  Future<void> _login() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      final UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const DashboardScreen()),
+      );
+    } on FirebaseAuthException catch (e) {
+      print('FirebaseAuthException: ${e.code} - ${e.message}');
+      setState(() {
+        if (e.code == 'user-not-found') {
+          _errorMessage = 'Pengguna tidak ditemukan.';
+        } else if (e.code == 'wrong-password') {
+          _errorMessage = 'Password salah.';
+        } else {
+          _errorMessage = 'Terjadi kesalahan: ${e.message}';
+        }
+      });
+    } catch (e) {
+      print('Error tak terduga: $e');
+      setState(() {
+        _errorMessage = 'Terjadi kesalahan tak terduga.';
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
         child: SingleChildScrollView(
@@ -63,7 +101,7 @@ class LoginScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               const Text(
-                'Gunakan akun  dibawah ini untuk masuk',
+                'Gunakan akun dibawah ini untuk masuk',
                 style: TextStyle(fontSize: 12, color: Colors.black),
               ),
               const SizedBox(height: 40),
@@ -85,9 +123,11 @@ class LoginScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: const Color(0xFFE1E1E1), width: 2),
                 ),
-                child: const TextField(
-                  decoration: InputDecoration(
-                    hintText: 'Masukkan Email ',
+                child: TextField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(
+                    hintText: 'Masukkan Email',
                     border: InputBorder.none,
                   ),
                 ),
@@ -111,28 +151,57 @@ class LoginScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: const Color(0xFFE1E1E1), width: 2),
                 ),
-                child: const TextField(
+                child: TextField(
+                  controller: _passwordController,
                   obscureText: true,
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     hintText: '********',
                     border: InputBorder.none,
                   ),
                 ),
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 16),
+              if (_errorMessage != null)
+                Text(
+                  _errorMessage!,
+                  style: const TextStyle(color: Colors.red),
+                ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                height: 48,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF648DDB),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: _isLoading ? null : _login,
+                  child: _isLoading
+                      ? const CircularProgressIndicator(
+                          color: Colors.white,
+                        )
+                      : const Text(
+                          'Masuk',
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                        ),
+                ),
+              ),
+              const SizedBox(height: 16),
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    'Belum Punya Akun ? ',
+                    'Belum Punya Akun? ',
                     style: TextStyle(fontSize: 13),
                   ),
                   GestureDetector(
                     onTap: () {
-                      // nanti arahkan ke halaman login
                       Navigator.push(
-                       context,
-                       MaterialPageRoute(builder: (context) => const SignupScreen()),
-                );
+                        context,
+                        MaterialPageRoute(builder: (context) => const SignupScreen()),
+                      );
                     },
                     child: const Text(
                       'Mendaftar disini',
@@ -145,69 +214,13 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(
-  width: double.infinity,
-  height: 48,
-  child: ElevatedButton(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: const Color(0xFF648DDB),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-    ),
-    onPressed: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const DashboardScreen()),
-      );
-    },
-    child: const Text(
-      'Masuk',
-      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-    ),
-  ),
-),
-              const SizedBox(height: 16),
-              const Text(
-                'Lupa Password ?',
-                style: TextStyle(fontSize: 12),
-              ),
               const SizedBox(height: 30),
               const Text(
                 'atau masuk dengan',
                 style: TextStyle(fontSize: 12),
               ),
               const SizedBox(height: 12),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  backgroundColor: const Color(0xFFD9D9D9),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  minimumSize: const Size(180, 31),
-                ),
-                onPressed: () {
-                  // Google sign in logic
-                },
-                child: const Text('Masuk dengan Google'),
-              ),
-              const SizedBox(height: 12),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  backgroundColor: const Color(0xFFD9D9D9),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  minimumSize: const Size(180, 31),
-                ),
-                onPressed: () {
-                  // Facebook sign in logic
-                },
-                child: const Text('Masuk dengan Facebook'),
-              ),
-              const SizedBox(height: 50),
+              // Tambahkan tombol login sosial media jika perlu
             ],
           ),
         ),

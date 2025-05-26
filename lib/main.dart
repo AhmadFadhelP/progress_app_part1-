@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart'; // Pastikan file ini ada di folder lib/
+import 'firebase_options.dart';
 import 'screen/selamat_datang.dart';
+import 'screen/login.dart';
+import 'screen/dashboard.dart';
+import 'screen/signup.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +24,13 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const SelamatDatangScreen(),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const SelamatDatangScreen(),
+        '/login': (context) => const LoginScreen(),
+        '/signup': (context) => const SignupScreen(),
+        '/dashboard': (context) => const DashboardScreen(),
+      },
     );
   }
 }
