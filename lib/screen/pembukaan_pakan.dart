@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'berat.dart';
-import 'durasi.dart';
 import 'sudut_pelontar.dart';
 
 class PembukaanPakan extends StatelessWidget {
@@ -59,8 +58,6 @@ class PembukaanPakan extends StatelessWidget {
             child: Column(
               children: [
                 _buildMenuButton(context, "Berat", const BeratPage()),
-                const SizedBox(height: 16),
-                _buildMenuButton(context, "Durasi", const DurasiPage()),
                 const SizedBox(height: 16),
                 _buildMenuButton(context, "Sudut Pelontar", const SudutPelontarPage()),
                 

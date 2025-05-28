@@ -11,42 +11,59 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
 
-  bool _isLoading = false;
   String? _errorMessage;
+  bool _isLoading = false;
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   Future<void> _login() async {
     setState(() {
-      _isLoading = true;
       _errorMessage = null;
     });
 
-    try {
-      final UserCredential userCredential = await _auth.signInWithEmailAndPassword(
-        email: _emailController.text.trim(),
-        password: _passwordController.text.trim(),
-      );
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const DashboardScreen()),
-      );
-    } on FirebaseAuthException catch (e) {
-      print('FirebaseAuthException: ${e.code} - ${e.message}');
+    // Validasi input kosong
+    if (email.isEmpty || password.isEmpty) {
       setState(() {
-        if (e.code == 'user-not-found') {
-          _errorMessage = 'Pengguna tidak ditemukan.';
-        } else if (e.code == 'wrong-password') {
-          _errorMessage = 'Password salah.';
-        } else {
-          _errorMessage = 'Terjadi kesalahan: ${e.message}';
-        }
+        _errorMessage = 'Email dan password harus diisi.';
+      });
+      return;
+    }
+
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      // Proses login Firebase
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+
+      // Jika berhasil, pindah ke dashboard
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const DashboardScreen()),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      // Tangani error Firebase dan tampilkan pesan
+      String message = 'Terjadi kesalahan saat login.';
+      if (e.code == 'user-not-found') {
+        message = 'Pengguna tidak ditemukan.';
+      } else if (e.code == 'wrong-password') {
+        message = 'Password salah.';
+      } else if (e.code == 'invalid-email') {
+        message = 'Format email tidak valid.';
+      }
+      setState(() {
+        _errorMessage = message;
       });
     } catch (e) {
-      print('Error tak terduga: $e');
       setState(() {
         _errorMessage = 'Terjadi kesalahan tak terduga.';
       });
@@ -101,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               const SizedBox(height: 10),
               const Text(
-                'Gunakan akun dibawah ini untuk masuk',
+                'Gunakan akun  dibawah ini untuk masuk',
                 style: TextStyle(fontSize: 12, color: Colors.black),
               ),
               const SizedBox(height: 40),
@@ -127,7 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: const InputDecoration(
-                    hintText: 'Masukkan Email',
+                    hintText: 'Masukkan Email ',
                     border: InputBorder.none,
                   ),
                 ),
@@ -160,13 +177,19 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
+
+              // Tampilkan pesan error jika ada
               if (_errorMessage != null)
-                Text(
-                  _errorMessage!,
-                  style: const TextStyle(color: Colors.red),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8, bottom: 8),
+                  child: Text(
+                    _errorMessage!,
+                    style: const TextStyle(color: Colors.red, fontSize: 13),
+                  ),
                 ),
-              const SizedBox(height: 16),
+
+              const SizedBox(height: 18),
               SizedBox(
                 width: double.infinity,
                 height: 48,
@@ -184,23 +207,24 @@ class _LoginScreenState extends State<LoginScreen> {
                         )
                       : const Text(
                           'Masuk',
-                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 14, fontWeight: FontWeight.bold),
                         ),
                 ),
               ),
               const SizedBox(height: 16),
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    'Belum Punya Akun? ',
+                    'Belum Punya Akun ? ',
                     style: TextStyle(fontSize: 13),
                   ),
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const SignupScreen()),
+                        MaterialPageRoute(
+                            builder: (context) => const SignupScreen()),
                       );
                     },
                     child: const Text(
@@ -220,7 +244,36 @@ class _LoginScreenState extends State<LoginScreen> {
                 style: TextStyle(fontSize: 12),
               ),
               const SizedBox(height: 12),
-              // Tambahkan tombol login sosial media jika perlu
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.black,
+                  backgroundColor: const Color(0xFFD9D9D9),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  minimumSize: const Size(180, 31),
+                ),
+                onPressed: () {
+                  // Google sign in logic
+                },
+                child: const Text('Masuk dengan Google'),
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.black,
+                  backgroundColor: const Color(0xFFD9D9D9),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  minimumSize: const Size(180, 31),
+                ),
+                onPressed: () {
+                  // Facebook sign in logic
+                },
+                child: const Text('Masuk dengan Facebook'),
+              ),
+              const SizedBox(height: 50),
             ],
           ),
         ),
